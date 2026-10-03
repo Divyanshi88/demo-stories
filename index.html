@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Story library</title>
+<style>
+:root { --ink: #16202e; --soft: #66718a; --line: #e2e6ee; --bg: #f5f7fa; --acc: #2f6df6; --accSoft: #eaf1ff }
+* { box-sizing: border-box }
+body { margin: 0; font: 15px/1.45 'Inter', system-ui, -apple-system, sans-serif; color: var(--ink); background: var(--bg) }
+header { padding: 20px 24px 0; max-width: 1180px; margin: 0 auto }
+h1 { font-size: 20px; margin: 0 0 3px }
+.sub { color: var(--soft); font-size: 13px; margin: 0 0 16px }
+.bar { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin-bottom: 14px }
+.frow { display: flex; gap: 10px; align-items: flex-start; padding: 7px 0; border-top: 1px solid var(--line) }
+.frow:first-child { border-top: 0; padding-top: 0 }
+.flab { width: 84px; flex: none; color: var(--soft); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; padding-top: 5px }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; flex: 1 }
+.chip { border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 4px 11px; font: inherit; font-size: 13px; cursor: pointer; color: var(--ink) }
+.chip:hover { border-color: #b9c2d4 }
+.chip.on { background: var(--acc); border-color: var(--acc); color: #fff }
+.chip small { opacity: .6; margin-left: 4px }
+.chip.on small { opacity: .8 }
+.tools { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 12px }
+#q { flex: 1; min-width: 220px; padding: 8px 11px; border: 1px solid var(--line); border-radius: 9px; font: inherit }
+#clear { border: 1px solid var(--line); background: #fff; border-radius: 9px; padding: 8px 13px; font: inherit; cursor: pointer; color: var(--soft) }
+#clear:hover { color: var(--ink); border-color: #b9c2d4 }
+.count { color: var(--soft); font-size: 13px; white-space: nowrap }
+.count b { color: var(--ink) }
+main { max-width: 1180px; margin: 0 auto; padding: 0 24px 64px }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px }
+.card { background: #fff; border: 1px solid var(--line); border-radius: 11px; padding: 13px 15px; text-align: left; font: inherit; color: inherit; cursor: pointer; display: flex; flex-direction: column; gap: 7px }
+.card:hover { border-color: var(--acc); box-shadow: 0 4px 16px rgba(20,30,50,.09) }
+.card .top { display: flex; gap: 8px; align-items: baseline }
+.card code { font: 600 12px ui-monospace, monospace; color: var(--acc); background: var(--accSoft); padding: 2px 7px; border-radius: 5px }
+.card b { font-size: 14.5px; font-weight: 600; line-height: 1.35 }
+.meta { display: flex; flex-wrap: wrap; gap: 5px }
+.tag { font-size: 11.5px; padding: 2px 8px; border-radius: 5px; background: #eef1f6; color: var(--soft) }
+.tag.p { background: #f0ecfb; color: #5b3fb0 }
+.tag.t { background: #e7f6ec; color: #11683a }
+.card.no { cursor: not-allowed; opacity: .5; background: #fafbfd }
+.card.no:hover { border-color: var(--line); box-shadow: none }
+.card.no code { background: #eef1f6; color: var(--soft) }
+.nb { font-size: 11.5px; color: var(--soft); font-style: italic }
+.empty { background: #fff; border: 1px dashed var(--line); border-radius: 11px; padding: 36px; text-align: center; color: var(--soft) }
+#full { position: fixed; inset: 0; background: #0d1420; z-index: 50; display: none; flex-direction: column }
+#full.on { display: flex }
+#fbar { display: flex; gap: 12px; align-items: center; padding: 9px 14px; background: #131c2b; color: #fff; flex: none }
+#fbar button { border: 1px solid #33405a; background: #1d2839; color: #fff; border-radius: 8px; padding: 6px 13px; font: inherit; font-size: 13px; cursor: pointer }
+#fbar button:hover { background: #26344a }
+#fbar .ft { font-size: 13px; color: #c3ccdd; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+#fbar .ft b { color: #fff }
+#full iframe { flex: 1; width: 100%; border: 0; background: #fff }
+@media (max-width: 640px) { .flab { width: 100%; padding: 0 0 2px } .frow { flex-direction: column; gap: 4px } }
+.pick { border: 1px solid var(--line); background: #fff; color: var(--soft); border-radius: 7px; width: 26px; height: 26px; font: inherit; font-size: 16px; line-height: 1; cursor: pointer; flex: none; margin-left: auto }
+.pick:hover { border-color: var(--acc); color: var(--acc) }
+.pick.in { background: var(--acc); border-color: var(--acc); color: #fff }
+.card.chosen { border-color: var(--acc); background: #fbfcff }
+.tray { position: sticky; bottom: 0; z-index: 20; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 13px 16px; margin: 16px 0 0; box-shadow: 0 -4px 20px rgba(20,30,50,.07) }
+.tray h3 { font-size: 13px; margin: 0 0 9px; color: var(--soft); text-transform: uppercase; letter-spacing: .03em }
+.tray .picked { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 11px }
+.tray .pc { background: var(--accSoft); color: #17408f; border-radius: 999px; padding: 3px 5px 3px 11px; font-size: 12.5px; display: flex; align-items: center; gap: 5px }
+.tray .pc button { border: 0; background: none; color: #17408f; cursor: pointer; font: inherit; font-size: 14px; line-height: 1; opacity: .6; padding: 0 4px }
+.tray .pc button:hover { opacity: 1 }
+.cust { display: flex; gap: 9px; flex-wrap: wrap; align-items: center }
+.cust input, .cust select { padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px; font: inherit; min-width: 150px }
+.cust .go { background: var(--acc); border: 1px solid var(--acc); color: #fff; border-radius: 9px; padding: 9px 17px; font: inherit; font-weight: 600; cursor: pointer }
+.cust .go:disabled { opacity: .45; cursor: not-allowed }
+.cust .lite { border: 1px solid var(--line); background: #fff; border-radius: 9px; padding: 8px 13px; font: inherit; cursor: pointer; color: var(--soft) }
+.note { font-size: 12.5px; color: var(--soft); margin-top: 9px }
+.note.bad { color: #a3341f } .note.ok { color: #11683a }
+.note code { background: #eef1f6; padding: 2px 6px; border-radius: 5px; font-size: 12px; user-select: all }
+</style></head><body>
+<header>
+  <h1>Story library</h1>
+  <p class="sub">103 stories · 103 built and playable. Every screen is visualised, not a live system.</p>
+  <div class="bar" id="bar"></div>
+</header>
+<main><div id="list"></div><div class="tray" id="tray"></div></main>
+<div id="full"><div id="fbar"><button id="back">← Back to the list</button><span class="ft"></span></div><iframe title="Story"></iframe></div>
+<script>
+var D = {"stories":[{"id":"US-01","slug":"us-01-truth-changes-once-name","title":"The truth changes once, with a name on it, and every system follows","functions":["Leadership"],"industries":["Any industry"],"persona":"CEO","tier":"LEAD","built":true},{"id":"US-02","slug":"us-02-customer-says-chat-only","title":"A customer says it in a chat, and only the platform sees that every system disagrees","functions":["Sales"],"industries":["B2B sales-led"],"persona":"Head of Sales","tier":"LEAD","built":true},{"id":"US-03","slug":"us-03-enquiry-arrives-at-midnight","title":"An enquiry that arrives at midnight is assigned work before anyone is awake","functions":["Sales","Inside Sales / Demand Generation"],"industries":["Any industry"],"persona":"Founder","tier":"SUPPORT","built":true},{"id":"US-04","slug":"us-04-chat-lands-on-record","title":"A customer's words in a chat land on their record, permanently","functions":["Sales"],"industries":["Any industry"],"persona":"CEO","tier":"LEAD","built":true},{"id":"US-05","slug":"us-05-deal-goes-quiet-you","title":"A deal goes quiet, and you are told why, not just that","functions":["Sales"],"industries":["B2B sales-led"],"persona":"CEO","tier":"LEAD","built":true},{"id":"US-06","slug":"us-06-call-one-brief-holds","title":"Before the call, one brief holds everything the company knows about the customer","functions":["Sales"],"industries":["B2B sales-led"],"persona":"CEO","tier":"NEVER LEAD","built":true},{"id":"US-07","slug":"us-07-followup-drafted-from-was","title":"The follow-up is drafted from what was agreed; a person reads it and sends it","functions":["Sales"],"industries":["B2B sales-led"],"persona":"Founder","tier":"NEVER LEAD","built":true},{"id":"US-08","slug":"us-08-change-customer-system","title":"You change your customer system, and none of this stops","functions":["Sales","IT and security"],"industries":["Any industry"],"persona":"CFO","tier":"SUPPORT","built":true},{"id":"US-09","slug":"us-09-enquiry-escalated","title":"An enquiry nobody has called by the afternoon is escalated before it goes cold","functions":["Sales","Inside Sales / Demand Generation"],"industries":["Any industry"],"persona":"Head of Sales","tier":"LEAD","built":true},{"id":"US-10","slug":"us-10-salespersons-promise-customer-tracked","title":"A salesperson's promise to a customer is tracked until it is kept","functions":["Sales"],"industries":["B2B sales-led"],"persona":"Head of Sales","tier":"LEAD","built":true},{"id":"US-11","slug":"us-11-pipeline-review-starts-from","title":"The pipeline review starts from what customers actually said, not from the stage column","functions":["Sales"],"industries":["B2B sales-led"],"persona":"Head of Sales","tier":"SUPPORT","built":true},{"id":"US-12","slug":"us-12-decision-maker-changes","title":"A customer's decision maker changes, and the record is corrected before the wrong person is called","functions":["Sales"],"industries":["B2B sales-led"],"persona":"Head of Sales","tier":"SUPPORT","built":true},{"id":"US-13","slug":"us-13-renewal-silence","title":"A renewal is due next month, and nobody has spoken to the customer in months","functions":["Sales","Customer success and service"],"industries":["B2B sales-led","B2B SaaS"],"persona":"Head of Sales","tier":"SUPPORT","built":true},{"id":"US-14","slug":"us-14-new-proposal-starts-from","title":"A new proposal starts from the closest work you have already done, and from what went wrong with it","functions":["Sales"],"industries":["Technology services","Professional services"],"persona":"Head of Sales","tier":"NEVER LEAD","built":true},{"id":"US-15","slug":"us-15-what-never-arrived","title":"The thing that never arrived becomes the thing you are told about","functions":["Operations and delivery"],"industries":["Technology services","Professional services"],"persona":"COO","tier":"LEAD","built":true},{"id":"US-16","slug":"us-16-meeting-to-board","title":"A meeting ends and its commitments are already on the board","functions":["Operations and delivery"],"industries":["Technology services","Professional services"],"persona":"COO","tier":"SUPPORT","built":true},{"id":"US-17","slug":"us-17-overdue-chased-every-day","title":"What is overdue is chased every day, and silence escalates","functions":["Operations and delivery"],"industries":["Any industry"],"persona":"COO","tier":"SUPPORT","built":true},{"id":"US-18","slug":"us-18-rule-written-once-runs","title":"A rule written once runs the same way every time, without anyone remembering it","functions":["Operations and delivery"],"industries":["Any industry"],"persona":"COO","tier":"SUPPORT","built":true},{"id":"US-19","slug":"us-19-systems-disagree","title":"Two systems disagree, and you hear about it from the platform first","functions":["Operations and delivery"],"industries":["Any industry"],"persona":"COO","tier":"LEAD","built":true},{"id":"US-20","slug":"us-20-your-own-inhouse-system","title":"Your own in-house system joins the rest of the business","functions":["Operations and delivery","IT and security"],"industries":["Any industry"],"persona":"Founder","tier":"SUPPORT","built":true},{"id":"US-21","slug":"us-21-channel-becomes-work","title":"A customer problem mentioned in the team channel becomes owned work","functions":["Operations and delivery","Customer success and service"],"industries":["Manufacturing"],"persona":"COO","tier":"SUPPORT","built":true},{"id":"US-22","slug":"us-22-task-given-chat-becomes","title":"A task given in a chat becomes tracked work, with an owner and a date","functions":["Operations and delivery"],"industries":["Any industry"],"persona":"Founder","tier":"SUPPORT","built":true},{"id":"US-23","slug":"us-23-new-customer-signs-every","title":"A new customer signs, and every step of onboarding is raised in order","functions":["Operations and delivery","Customer success and service"],"industries":["B2B SaaS","Technology services","IT Services"],"persona":"COO","tier":"SUPPORT","built":true},{"id":"US-24","slug":"us-24-work-concentration","title":"One person is quietly carrying most of the open work, and you see it before something drops","functions":["Operations and delivery"],"industries":["Any industry"],"persona":"COO","tier":"LEAD","built":true},{"id":"US-25","slug":"us-25-alert-dealt-by-replying","title":"An alert is dealt with by replying to it, from a phone","functions":["Operations and delivery"],"industries":["Any industry"],"persona":"Founder","tier":"SUPPORT","built":true},{"id":"US-26","slug":"us-26-voice-note-site-visit","title":"A voice note from a site visit becomes minutes and tasks","functions":["Operations and delivery"],"industries":["Field operations"],"persona":"COO","tier":"NEVER LEAD","built":true},{"id":"US-27","slug":"us-27-signed-order-saved-shared","title":"A signed order saved to a shared folder starts the work it commits you to","functions":["Operations and delivery"],"industries":["Manufacturing"],"persona":"COO","tier":"NEVER LEAD","built":true},{"id":"US-28","slug":"us-28-shared-inbox-sorted-arrives","title":"The shared inbox is sorted before anyone arrives, and every owed reply is drafted","functions":["Operations and delivery"],"industries":["Any industry"],"persona":"COO","tier":"NEVER LEAD","built":true},{"id":"US-29","slug":"us-29-overdue-payment-arrives-whole","title":"An overdue payment arrives with the whole relationship attached","functions":["Finance"],"industries":["B2B sales-led"],"persona":"CFO","tier":"SUPPORT","built":true},{"id":"US-30","slug":"us-30-invoice-drafted-person-decides","title":"An invoice is drafted, and a person decides whether it exists","functions":["Finance"],"industries":["Technology services","Professional services"],"persona":"CFO","tier":"SUPPORT","built":true},{"id":"US-31","slug":"us-31-books-checked-against-whether","title":"The books are checked against whether the work happened","functions":["Finance","Internal Audit"],"industries":["Any industry"],"persona":"CFO","tier":"LEAD","built":true},{"id":"US-32","slug":"us-32-desktop-accounting-machine-your","title":"Desktop accounting on a machine in your office is read like any other system","functions":["Finance"],"industries":["SME"],"persona":"CFO","tier":"SUPPORT","built":true},{"id":"US-33","slug":"us-33-deal-won-invoice","title":"A deal is won, and finance has the task to invoice the same hour","functions":["Finance","Sales"],"industries":["B2B sales-led"],"persona":"CFO","tier":"SUPPORT","built":true},{"id":"US-34","slug":"us-34-payment-promised","title":"A customer says the payment is on its way, and finance learns whether it arrived","functions":["Finance"],"industries":["B2B sales-led"],"persona":"CFO","tier":"LEAD","built":true},{"id":"US-35","slug":"us-35-approval-stuck-someones-queue","title":"An approval stuck in someone's queue is chased before the work stops","functions":["Finance"],"industries":["Any industry"],"persona":"CFO","tier":"SUPPORT","built":true},{"id":"US-36","slug":"us-36-statutory-deadline-approaches-nobody","title":"A statutory deadline approaches, and nobody has confirmed the filing","functions":["Finance","Compliance and governance"],"industries":["Any industry"],"persona":"Director","tier":"SUPPORT","built":true},{"id":"US-37","slug":"us-37-leaver-handover","title":"Someone resigns on a Friday, and what they knew is already written down","functions":["People"],"industries":["Any industry"],"persona":"CEO","tier":"LEAD","built":true},{"id":"US-38","slug":"us-38-new-joiner-starts-company","title":"A new joiner starts with what the company already knows about their area","functions":["People"],"industries":["Any industry"],"persona":"COO","tier":"NEVER LEAD","built":true},{"id":"US-39","slug":"us-39-access-ends-directory-knowledge","title":"Access ends with the directory, and the knowledge stays","functions":["People","IT and security"],"industries":["Any industry"],"persona":"CFO","tier":"NEVER LEAD","built":true},{"id":"US-40","slug":"us-40-where-your-scarce-senior","title":"Where your scarce senior attention actually went last month","functions":["People","Leadership"],"industries":["Professional services","Technology services"],"persona":"CEO","tier":"NEVER LEAD","built":true},{"id":"US-41","slug":"us-41-salesperson-handover","title":"A salesperson leaves, and every open deal and promise is handed over with its history","functions":["People","Sales"],"industries":["B2B sales-led"],"persona":"Head of Sales","tier":"LEAD","built":true},{"id":"US-42","slug":"us-42-competitor-says-something-coming","title":"A competitor says something is coming next week, and your team hears it that morning","functions":["Marketing"],"industries":["Any industry"],"persona":"CEO","tier":"SUPPORT","built":true},{"id":"US-43","slug":"us-43-complaint-posted-public-becomes","title":"A complaint posted in public becomes work, not a notification","functions":["Marketing","Customer success and service"],"industries":["Any industry"],"persona":"COO","tier":"SUPPORT","built":true},{"id":"US-44","slug":"us-44-your-standing-questions-answered","title":"Your standing questions are answered on a schedule, and only what changed comes back","functions":["Marketing","Strategy"],"industries":["Any industry"],"persona":"Founder","tier":"NEVER LEAD","built":true},{"id":"US-45","slug":"us-45-post-goes-out-your","title":"A post goes out in your company's voice, after a person approves it","functions":["Marketing"],"industries":["Any industry"],"persona":"Founder","tier":"NEVER LEAD","built":true},{"id":"US-46","slug":"us-46-regulation-moves-you-told","title":"A regulation moves, and you are told which part of your business it touches","functions":["Marketing","Compliance and governance"],"industries":["Any industry"],"persona":"CFO","tier":"NEVER LEAD","built":true},{"id":"US-47","slug":"us-47-after-event-every-contact","title":"After an event, every contact is followed up, and you see which were not","functions":["Marketing","Sales"],"industries":["B2B sales-led"],"persona":"Head of Marketing","tier":"SUPPORT","built":true},{"id":"US-48","slug":"us-48-buying-signal-public-comment","title":"A buying signal in a public comment reaches sales while it is still warm","functions":["Marketing","Sales"],"industries":["B2B sales-led"],"persona":"Head of Marketing","tier":"SUPPORT","built":true},{"id":"US-49","slug":"us-49-poor-review-answered-by","title":"A poor review is answered by the right person the same day","functions":["Marketing"],"industries":["Any industry"],"persona":"Head of Marketing","tier":"NEVER LEAD","built":true},{"id":"US-50","slug":"us-50-competitor-changes-price-sales","title":"A competitor changes its price, and sales has the answer before the first customer asks","functions":["Marketing","Sales"],"industries":["B2B sales-led"],"persona":"Head of Marketing","tier":"NEVER LEAD","built":true},{"id":"US-51","slug":"us-51-outgoing-proposal-checked-against","title":"An outgoing proposal is checked against what the company has already said in public","functions":["Marketing"],"industries":["B2B sales-led"],"persona":"Head of Marketing","tier":"NEVER LEAD","built":true},{"id":"US-52","slug":"us-52-how-people-talk-about","title":"How people talk about you is changing, and you see it while it is still small","functions":["Marketing"],"industries":["Any industry"],"persona":"Head of Marketing","tier":"NEVER LEAD","built":true},{"id":"US-53","slug":"us-53-one-announcement-one-set","title":"One announcement, one set of facts, a version each for customers, staff and investors","functions":["Marketing"],"industries":["Any industry"],"persona":"Head of Marketing","tier":"NEVER LEAD","built":true},{"id":"US-54","slug":"us-54-monday-brief-nobody-had","title":"The Monday brief nobody had to write","functions":["Leadership","Founder's Office"],"industries":["Any industry"],"persona":"CEO","tier":"SUPPORT","built":true},{"id":"US-55","slug":"us-55-exception-report-late-missing","title":"An exception report: what is late, what is missing, and where you contradict yourself","functions":["Leadership"],"industries":["Any industry"],"persona":"CEO","tier":"SUPPORT","built":true},{"id":"US-56","slug":"us-56-same-question-two-answers","title":"The same question, two people, two different answers — correctly","functions":["Leadership","IT and security"],"industries":["Any industry"],"persona":"CFO","tier":"NEVER LEAD","built":true},{"id":"US-57","slug":"us-57-anything-read-you-told","title":"Before anything is read in, you are told what is already over-shared","functions":["Leadership","IT and security"],"industries":["Any industry"],"persona":"CFO","tier":"SUPPORT","built":true},{"id":"US-58","slug":"us-58-decision-you-have-defend","title":"A decision you have to defend two years later is still answerable","functions":["Leadership","Compliance and governance","Internal Audit"],"industries":["Any industry"],"persona":"CFO","tier":"LEAD","built":true},{"id":"US-59","slug":"us-59-trend-named-while-still","title":"A trend is named while it is still small","functions":["Leadership","Strategy"],"industries":["Any industry"],"persona":"Founder","tier":"SUPPORT","built":true},{"id":"US-60","slug":"us-60-board-decisions-chased","title":"What the board decided is chased like any other commitment","functions":["Leadership","Compliance and governance","Board"],"industries":["Any industry"],"persona":"Director","tier":"SUPPORT","built":true},{"id":"US-61","slug":"us-61-board-pack-built-from","title":"The board pack is built from the company's own systems, and every line opens at its source","functions":["Leadership","Compliance and governance","Board"],"industries":["Any industry"],"persona":"Director","tier":"SUPPORT","built":true},{"id":"US-62","slug":"us-62-directors-question-answered-from","title":"A director's question is answered from the record, with its sources, without days of searching","functions":["Leadership","Compliance and governance","Board"],"industries":["Any industry"],"persona":"Director","tier":"SUPPORT","built":true},{"id":"US-63","slug":"us-63-priorities-vs-work","title":"The priorities agreed at the offsite are checked against where the work actually goes","functions":["Leadership","Strategy"],"industries":["Any industry"],"persona":"CEO","tier":"LEAD","built":true},{"id":"US-64","slug":"us-64-project-quietly-ends-companys","title":"A project quietly ends, and the company's record changes only when the right person confirms it","functions":["Leadership"],"industries":["Technology services","Professional services"],"persona":"CEO","tier":"SUPPORT","built":true},{"id":"US-65","slug":"us-65-relationship-drifting","title":"A customer relationship that is drifting is visible weeks before anyone says it aloud","functions":["Leadership","Customer success and service"],"industries":["Technology services","Professional services"],"persona":"CEO","tier":"LEAD","built":true},{"id":"US-66","slug":"us-66-promises-week","title":"Every promise you made this week, in one list, before you forget one","functions":["Leadership","Founder's Office"],"industries":["Any industry"],"persona":"Founder","tier":"LEAD","built":true},{"id":"US-67","slug":"us-67-monthly-investor-update-drafted","title":"The monthly investor update is drafted from what actually happened","functions":["Leadership","Founder's Office"],"industries":["Venture Funded Startups"],"persona":"Founder","tier":"NEVER LEAD","built":true},{"id":"US-68","slug":"us-68-risk-brought-back","title":"A risk raised in a meeting and never mentioned again is brought back","functions":["Leadership","Compliance and governance"],"industries":["Any industry"],"persona":"Director","tier":"LEAD","built":true},{"id":"US-69","slug":"us-69-your-own-last-month","title":"Your own last month, read back to you: what was promised and never done","functions":["Leadership","Compliance and governance"],"industries":["Any industry"],"persona":"Director","tier":"LEAD","built":true},{"id":"US-70","slug":"us-70-deadline-moves","title":"A client moves the deadline in a meeting, and one reply decides who is told what","functions":["Operations and delivery","Engineering"],"industries":["Technology services","IT Services"],"persona":"COO","tier":"LEAD","built":true},{"id":"US-71","slug":"us-71-referral-not-lost","title":"A client mentions a referral on a call, and the introduction is not lost","functions":["Sales"],"industries":["B2B sales-led","Professional services"],"persona":"Head of Sales","tier":"Not tiered","built":true},{"id":"US-72","slug":"us-72-competitor-shutting-down","title":"A competitor is shutting down, and marketing and demand generation each have a plan the same morning","functions":["Marketing","Inside Sales / Demand Generation"],"industries":["B2B SaaS"],"persona":"Head of Marketing","tier":"Not tiered","built":true},{"id":"US-73","slug":"us-73-competitor-photographed-your-key","title":"A competitor is photographed with your key client's CEO, and customer success hears about it the next morning","functions":["Customer success and service"],"industries":["B2B sales-led"],"persona":"Head of Customer Success","tier":"Not tiered","built":true},{"id":"US-74","slug":"us-74-competitors-team-starts-writing","title":"A competitor's team starts writing about one industry, and marketing and product see the move while it is small","functions":["Marketing","Product"],"industries":["B2B SaaS"],"persona":"Head of Marketing","tier":"Not tiered","built":true},{"id":"US-75","slug":"us-75-new-enquiry-arrives-research","title":"A new enquiry arrives with research on the company and the person already attached","functions":["Sales","Inside Sales / Demand Generation"],"industries":["Any industry"],"persona":"Head of Sales","tier":"Not tiered","built":true},{"id":"US-76","slug":"us-76-consumer-reviews","title":"The same complaint in many consumer reviews becomes one item the product team owns","functions":["Product","Customer success and service"],"industries":["B2C"],"persona":"Founder","tier":"Not tiered","built":true},{"id":"US-77","slug":"us-77-same-integration-asked","title":"Three prospects ask for the same integration on sales calls, and the product team hears it from the calls","functions":["Product","Sales"],"industries":["Martech"],"persona":"CEO","tier":"Not tiered","built":true},{"id":"US-78","slug":"us-78-feature-promise","title":"A feature promised in a sales demo is tied to the engineering ticket, and sales hears when its date moves","functions":["Engineering","Sales"],"industries":["Software sales"],"persona":"Head of Sales","tier":"Not tiered","built":true},{"id":"US-79","slug":"us-79-client-moves-website-launch","title":"A client moves the website launch in a meeting, and the build team's tickets follow","functions":["Engineering","Operations and delivery"],"industries":["Digital Agencies"],"persona":"COO","tier":"Not tiered","built":true},{"id":"US-80","slug":"us-80-payroll-audit-moves","title":"The payroll audit moves in a meeting, and every task and check that feeds it moves with it","functions":["Internal Audit","Finance"],"industries":["SME"],"persona":"CFO","tier":"Not tiered","built":true},{"id":"US-81","slug":"us-81-where-is-my-order","title":"A customer asks three times where their order is, and the fourth message comes from the company","functions":["Customer success and service"],"industries":["D2C"],"persona":"COO","tier":"Not tiered","built":true},{"id":"US-82","slug":"us-82-creator-posts","title":"A creator posts about your product, and marketing hears before the comments go unanswered","functions":["Marketing"],"industries":["D2C"],"persona":"Head of Marketing","tier":"Not tiered","built":true},{"id":"US-83","slug":"us-83-refund-tracked","title":"A refund promised to a consumer in a chat is tracked until the money is back","functions":["Customer success and service","Finance"],"industries":["B2C"],"persona":"COO","tier":"Not tiered","built":true},{"id":"US-84","slug":"us-84-approval-overdue","title":"The client's approval on the creative has not come, and the launch is flagged at risk before anyone says so","functions":["Operations and delivery","Customer success and service"],"industries":["Digital Agencies"],"persona":"COO","tier":"Not tiered","built":true},{"id":"US-85","slug":"us-85-webinar-follow-up","title":"Everyone who attended the webinar is followed up, and those who asked a question are called first","functions":["Inside Sales / Demand Generation","Marketing"],"industries":["Martech"],"persona":"Head of Marketing","tier":"Not tiered","built":true},{"id":"US-86","slug":"us-86-was-promised-demos-checked","title":"What was promised in the demos is checked against the contract before it goes out","functions":["Sales"],"industries":["Software sales"],"persona":"Head of Sales","tier":"Not tiered","built":true},{"id":"US-87","slug":"us-87-investor-asks","title":"What an investor asked for on the last call is ready before the next one","functions":["Founder's Office","Leadership"],"industries":["Venture Funded Startups"],"persona":"Founder","tier":"Not tiered","built":true},{"id":"US-88","slug":"us-88-technician-site","title":"A technician's message from a customer's site becomes the parts request, the return visit and the customer's update","functions":["Operations and delivery"],"industries":["Field operations"],"persona":"COO","tier":"Not tiered","built":true},{"id":"US-89","slug":"us-89-supplier-confirmation-never-came","title":"The supplier's dispatch confirmation never came, and production hears before the line stops","functions":["Operations and delivery"],"industries":["Manufacturing"],"persona":"COO","tier":"Not tiered","built":true},{"id":"US-90","slug":"us-90-client-decision-date-passes","title":"A client said they would decide by the fifteenth, and the sixteenth does not pass unnoticed","functions":["Sales","Founder's Office"],"industries":["Professional services"],"persona":"Founder","tier":"Not tiered","built":true},{"id":"US-91","slug":"us-91-friday-update-missing","title":"The Friday update a delivery lead always sends does not come, and someone asks why that evening","functions":["Operations and delivery","Leadership"],"industries":["Technology services"],"persona":"COO","tier":"Not tiered","built":true},{"id":"US-92","slug":"us-92-in-progress-task-stalled","title":"A month-end task says \"in progress\", but nothing has moved on it for a week, and finance hears before the close","functions":["Finance"],"industries":["Any industry"],"persona":"CFO","tier":"Not tiered","built":true},{"id":"US-93","slug":"us-93-meeting-decision-no-action","title":"A decision taken in the leadership meeting shows no sign of happening anywhere, and its owner is asked before the next one","functions":["Leadership","Sales"],"industries":["B2B SaaS"],"persona":"CEO","tier":"Not tiered","built":true},{"id":"US-94","slug":"us-94-purchase-order-never-followed","title":"Work started on a verbal yes, and the purchase order that should have followed has not come","functions":["Finance","Sales"],"industries":["IT Services"],"persona":"CFO","tier":"Not tiered","built":true},{"id":"US-95","slug":"us-95-project-week-against-plan","title":"One project's week, set against its plan, reaches the COO without anyone writing it","functions":["Operations and delivery","Leadership"],"industries":["Digital Agencies"],"persona":"COO","tier":"Not tiered","built":true},{"id":"US-96","slug":"us-96-follow-through-by-team","title":"How each team kept its promises this month, by person, read from the record rather than from memory","functions":["Leadership","People"],"industries":["Any industry"],"persona":"CEO","tier":"Not tiered","built":true},{"id":"US-97","slug":"us-97-what-changed-before-board","title":"What changed in the company's picture since the last board meeting, ready before the founder writes a word","functions":["Board","Founder's Office","Strategy"],"industries":["Venture Funded Startups"],"persona":"Founder","tier":"Not tiered","built":true},{"id":"US-98","slug":"us-98-commitments-page-by-team","title":"One page leadership can open any day: what was promised, what is late and what is at risk, by team","functions":["Leadership","Operations and delivery"],"industries":["Any industry"],"persona":"COO","tier":"Not tiered","built":true},{"id":"US-99","slug":"us-99-month-with-its-reasons","title":"The month's figures reach the CFO with the reasons behind them, from the systems where the reasons live","functions":["Finance","Leadership"],"industries":["Professional services"],"persona":"CFO","tier":"Not tiered","built":true},{"id":"US-100","slug":"us-100-competitor-raises-round","title":"A competitor has raised a new round, and sales, marketing and the founder each hear what it means for them that morning","functions":["Strategy","Marketing","Sales"],"industries":["B2B SaaS","Venture Funded Startups"],"persona":"Founder","tier":"Not tiered","built":true},{"id":"US-101","slug":"us-101-competitor-round-your-segment","title":"A competitor's new round names an expansion into your segment, and the accounts there are called before the competitor calls them","functions":["Strategy","Sales"],"industries":["Martech"],"persona":"CEO","tier":"Not tiered","built":true},{"id":"US-102","slug":"us-102-competitor-sales-head-your-region","title":"A competitor appoints a head of sales in your region, and your accounts there are reviewed before their first meeting is booked","functions":["Sales","Strategy"],"industries":["B2B sales-led"],"persona":"CEO","tier":"Not tiered","built":true},{"id":"US-103","slug":"us-103-competitor-wins-your-customer","title":"A competitor announces a customer win, the customer is yours, and finance sees what is at risk before the renewal","functions":["Finance","Customer success and service"],"industries":["B2B SaaS"],"persona":"CFO","tier":"Not tiered","built":true}],"functions":["Board","Compliance and governance","Customer success and service","Engineering","Finance","Founder's Office","IT and security","Inside Sales / Demand Generation","Internal Audit","Leadership","Marketing","Operations and delivery","People","Product","Sales","Strategy"],"industries":["Any industry","B2B SaaS","B2B sales-led","B2C","D2C","Digital Agencies","Field operations","IT Services","Manufacturing","Martech","Professional services","SME","Software sales","Technology services","Venture Funded Startups"],"personas":["CEO","CFO","COO","Director","Founder","Head of Customer Success","Head of Marketing","Head of Sales"],"tiers":["LEAD","NEVER LEAD","Not tiered","SUPPORT"],"built":103};
+var F = { functions: [], industries: [], personas: [], tiers: [], built: 'all', q: '' };
+var bar = document.getElementById('bar'), list = document.getElementById('list');
+var full = document.getElementById('full'), frame = full.querySelector('iframe'), ftitle = full.querySelector('.ft');
+
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c] }) }
+
+// How many stories a chip would leave if it were the only thing added to the current filters.
+function countFor(key, val) { return D.stories.filter(function (s) { return keep(s, key, val) }).length }
+
+function keep(s, addKey, addVal) {
+  var f = { functions: F.functions.slice(), industries: F.industries.slice(), personas: F.personas.slice(), tiers: F.tiers.slice() };
+  if (addKey && f[addKey].indexOf(addVal) < 0) f[addKey] = f[addKey].concat([addVal]);
+  // Within a facet the values are OR; across facets they are AND.
+  if (f.functions.length && !f.functions.some(function (v) { return s.functions.indexOf(v) > -1 })) return false;
+  if (f.industries.length && !f.industries.some(function (v) { return s.industries.indexOf(v) > -1 })) return false;
+  if (f.personas.length && f.personas.indexOf(s.persona) < 0) return false;
+  if (f.tiers.length && f.tiers.indexOf(s.tier) < 0) return false;
+  if (F.built === 'built' && !s.built) return false;
+  if (F.built === 'not' && s.built) return false;
+  if (F.q) { var hay = (s.id + ' ' + s.title + ' ' + s.persona + ' ' + s.functions.join(' ') + ' ' + s.industries.join(' ')).toLowerCase(); if (hay.indexOf(F.q) < 0) return false }
+  return true;
+}
+
+function chipRow(label, key, values) {
+  var html = '<div class="frow"><div class="flab">' + esc(label) + '</div><div class="chips">';
+  for (var i = 0; i < values.length; i++) {
+    var v = values[i], on = F[key].indexOf(v) > -1, n = countFor(key, v);
+    html += '<button class="chip' + (on ? ' on' : '') + '" data-k="' + esc(key) + '" data-v="' + esc(v) + '">' + esc(v) + '<small>' + n + '</small></button>';
+  }
+  return html + '</div></div>';
+}
+
+function drawBar() {
+  var builtRow = '<div class="frow"><div class="flab">Built</div><div class="chips">' +
+    [['all', 'All'], ['built', 'Built'], ['not', 'Not built']].map(function (o) {
+      return '<button class="chip' + (F.built === o[0] ? ' on' : '') + '" data-built="' + o[0] + '">' + o[1] + '</button>';
+    }).join('') + '</div></div>';
+  bar.innerHTML = chipRow('Function', 'functions', D.functions) + chipRow('Industry', 'industries', D.industries) +
+    chipRow('Persona', 'personas', D.personas) + chipRow('Tier', 'tiers', D.tiers) + builtRow +
+    '<div class="tools"><input id="q" placeholder="Search a story by ID, title or persona" value="' + esc(F.q) + '">' +
+    '<button id="clear">Clear filters</button><span class="count" id="count"></span></div>';
+
+  bar.querySelectorAll('.chip[data-k]').forEach(function (c) {
+    c.onclick = function () {
+      var k = c.dataset.k, v = c.dataset.v, at = F[k].indexOf(v);
+      if (at > -1) F[k].splice(at, 1); else F[k].push(v);
+      draw();
+    };
+  });
+  bar.querySelectorAll('.chip[data-built]').forEach(function (c) {
+    c.onclick = function () { F.built = c.dataset.built; draw() };
+  });
+  var q = document.getElementById('q');
+  q.oninput = function () { F.q = q.value.trim().toLowerCase(); drawList(); drawBar2() };
+  document.getElementById('clear').onclick = function () {
+    F = { functions: [], industries: [], personas: [], tiers: [], built: 'all', q: '' }; draw();
+  };
+}
+// Redraw only the counts and the count line, so typing in the box does not steal focus.
+function drawBar2() {
+  bar.querySelectorAll('.chip[data-k]').forEach(function (c) {
+    var s = c.querySelector('small'); if (s) s.textContent = countFor(c.dataset.k, c.dataset.v);
+  });
+  setCount();
+}
+function setCount() {
+  var n = D.stories.filter(function (s) { return keep(s) }).length;
+  var el = document.getElementById('count');
+  if (el) el.innerHTML = '<b>' + n + '</b> of ' + D.stories.length + ' stories';
+}
+
+function drawList() {
+  var shown = D.stories.filter(function (s) { return keep(s) });
+  if (!shown.length) { list.innerHTML = '<div class="empty">No story matches these filters. Try removing one.</div>'; return }
+  list.innerHTML = '<div class="grid">' + shown.map(function (s) {
+    var tags = s.functions.concat(s.industries).map(function (t) { return '<span class="tag">' + esc(t) + '</span>' }).join('');
+    var inList = PICK.indexOf(s.slug) > -1;
+    return '<div class="card' + (s.built ? '' : ' no') + (inList ? ' chosen' : '') + '" data-slug="' + esc(s.slug) + '">' +
+      '<div class="top"><code>' + esc(s.id) + '</code>' + (s.built ? '' : '<span class="nb">not built yet</span>') +
+        (s.built ? '<button class="pick' + (inList ? ' in' : '') + '" title="' + (inList ? 'Remove from the shortlist' : 'Add to the shortlist') + '">' + (inList ? '✓' : '+') + '</button>' : '') +
+      '</div>' +
+      '<b>' + esc(s.title) + '</b>' +
+      '<div class="meta"><span class="tag p">' + esc(s.persona) + '</span>' + (s.tier ? '<span class="tag t">' + esc(s.tier) + '</span>' : '') + tags + '</div>' +
+      '</div>';
+  }).join('') + '</div>';
+  list.querySelectorAll('.card:not(.no)').forEach(function (c) {
+    c.onclick = function () { location.hash = '#/story/' + c.dataset.slug };
+    var p = c.querySelector('.pick');
+    if (p) p.onclick = function (e) { e.stopPropagation(); toggle(c.dataset.slug) };
+  });
+}
+// ---- the shortlist: pick stories, name the viewer and the company, export the folder --------
+var PICK = [], busy = false, msg = '';
+function toggle(slug) { var i = PICK.indexOf(slug); if (i > -1) PICK.splice(i, 1); else PICK.push(slug); msg = ''; drawList(); drawTray() }
+function addShown() {
+  D.stories.filter(function (s) { return keep(s) && s.built && PICK.indexOf(s.slug) < 0 }).forEach(function (s) { PICK.push(s.slug) });
+  msg = ''; drawList(); drawTray();
+}
+function titleOf(slug) { var s = D.stories.filter(function (x) { return x.slug === slug })[0]; return s ? s.id : slug }
+
+function drawTray() {
+  var tray = document.getElementById('tray');
+  var chips = PICK.map(function (slug) {
+    return '<span class="pc">' + esc(titleOf(slug)) + '<button data-x="' + esc(slug) + '" title="Remove">×</button></span>';
+  }).join('');
+  var personas = ['CEO', 'Founder', 'Director', 'CFO', 'COO', 'Head of Sales', 'Head of Marketing', 'Head of Customer Success'];
+  tray.innerHTML =
+    '<h3>Shortlist · ' + PICK.length + (PICK.length === 1 ? ' story' : ' stories') + '</h3>' +
+    (PICK.length ? '<div class="picked">' + chips + '</div>'
+                 : '<div class="picked"><span class="tag">Nothing picked yet. Use + on a story, or Add all shown.</span></div>') +
+    '<div class="cust">' +
+      '<button class="lite" id="addshown">Add all shown</button>' +
+      (PICK.length ? '<button class="lite" id="clearpick">Clear</button>' : '') +
+      '<input id="vname" placeholder="Viewer’s name (optional)" value="' + esc(CUST.name) + '">' +
+      '<select id="vpersona">' + personas.map(function (p) {
+        return '<option' + (CUST.persona === p ? ' selected' : '') + '>' + esc(p) + '</option>' }).join('') + '</select>' +
+      '<input id="vcompany" placeholder="Company name (optional)" value="' + esc(CUST.company) + '">' +
+      '<button class="go" id="go"' + (PICK.length && !busy ? '' : ' disabled') + '>' + (busy ? 'Exporting…' : 'Export') + '</button>' +
+    '</div>' + (msg ? '<p class="note ' + msgKind + '">' + msg + '</p>' : '<p class="note">Export writes a folder of these stories with the company and the viewer’s name swapped in. The originals never change.</p>');
+
+  tray.querySelectorAll('.pc button').forEach(function (b) { b.onclick = function () { toggle(b.dataset.x) } });
+  document.getElementById('addshown').onclick = addShown;
+  var cp = document.getElementById('clearpick'); if (cp) cp.onclick = function () { PICK = []; msg = ''; drawList(); drawTray() };
+  ['vname', 'vcompany'].forEach(function (id) {
+    var el = document.getElementById(id);
+    el.oninput = function () { CUST[id === 'vname' ? 'name' : 'company'] = el.value };
+  });
+  document.getElementById('vpersona').onchange = function (e) { CUST.persona = e.target.value };
+  document.getElementById('go').onclick = runExport;
+}
+
+var CUST = { name: '', company: '', persona: 'CFO' }, msgKind = '';
+function say(text, kind) { msg = text; msgKind = kind || ''; drawTray() }
+
+function runExport() {
+  if (!PICK.length || busy) return;
+  busy = true; say('Building ' + PICK.length + ' ' + (PICK.length === 1 ? 'story' : 'stories') + '… this takes a minute or two.', '');
+  fetch('export', { method: 'POST', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ ids: PICK, name: CUST.name, company: CUST.company, persona: CUST.persona }) })
+    .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j } }) })
+    .then(function (res) {
+      if (!res.ok) { busy = false; say(esc(res.j.error || 'The export could not start.'), 'bad'); return }
+      poll();
+    })
+    .catch(function () {
+      busy = false;
+      say('This page is not being served by tools/serve-stories.mjs, so it cannot start the export. Run it yourself:<br><code>node tools/export-demo.mjs --ids ' +
+        esc(PICK.join(',')) + (CUST.persona ? ' --persona "' + esc(CUST.persona) + '"' : '') +
+        (CUST.name ? ' --name "' + esc(CUST.name) + '"' : '') + (CUST.company ? ' --company "' + esc(CUST.company) + '"' : '') + '</code>', 'bad');
+    });
+}
+function poll() {
+  fetch('export/status').then(function (r) { return r.json() }).then(function (st) {
+    if (st.running) { say('Building … ' + (st.built || 0) + ' of ' + (st.total || PICK.length) + ' done.', ''); setTimeout(poll, 1500); return }
+    busy = false;
+    if (st.ok) say('Done. The folder is <code>' + esc(st.folder || 'exports/') + '</code> — open start-demo.command (macOS) or start-demo.cmd (Windows) inside it.', 'ok');
+    else say('The export failed. Last lines:<br><code>' + esc((st.lines || []).join(' · ')) + '</code>', 'bad');
+  }).catch(function () { busy = false; say('Lost contact with the server.', 'bad') });
+}
+
+function draw() { drawBar(); drawList(); setCount(); drawTray() }
+
+function open(slug) {
+  var s = D.stories.filter(function (x) { return x.slug === slug })[0];
+  if (!s || !s.built) { close(); return }
+  ftitle.innerHTML = '<b>' + esc(s.id) + '</b> · ' + esc(s.title);
+  frame.src = 'stories/' + slug + '/';
+  full.classList.add('on');
+  document.body.style.overflow = 'hidden';
+}
+function close() {
+  full.classList.remove('on'); frame.src = 'about:blank';
+  document.body.style.overflow = '';
+}
+document.getElementById('back').onclick = function () { location.hash = '' };
+document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && full.classList.contains('on')) location.hash = '' });
+function route() {
+  var m = /^#\/story\/(.+)$/.exec(location.hash);
+  if (m) open(m[1]); else close();
+}
+window.addEventListener('hashchange', route);
+draw(); route();
+</script>
+</body></html>

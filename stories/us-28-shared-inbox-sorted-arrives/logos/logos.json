@@ -1,0 +1,11 @@
+{
+  "note": "App logos for the closing 'How the platform wired this story' diagram. Optional: a story never needs one. To add a logo, put the file in this folder and add a line here naming the stack app it stands for and the product's skin slug (library/skins/). tools/check-story.mjs accepts a logo only when it is listed here and matches the product the story's stack uses for that app.",
+  "logos": {
+    "gmeet.png": { "app": "meeting", "skin": "007-google-meet" },
+    "gdocs.png": { "app": "docs", "skin": "020-google-docs" },
+    "slack.webp": { "app": "chat", "skin": "001-slack" },
+    "hubspot.webp": { "app": "crm", "skin": "010-hubspot" },
+    "gmail.png": { "app": "email", "skin": "004-gmail" },
+    "jira.png": { "app": "tracker", "skin": "014-jira" }
+  }
+}
