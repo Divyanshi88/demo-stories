@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: demo-stories
+    runtime: static
+    staticPublishPath: .
+    buildCommand: "echo prebuilt static output; nothing to build"
